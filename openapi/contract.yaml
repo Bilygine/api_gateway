@@ -1,0 +1,347 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/bilygine/bilygine_api/1.0.0
+info:
+  description: |
+    api defintion and server for database communication
+  version: "3.0.1"
+  title: Bilygine API
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: parede_h@etna-alternance.net
+tags:
+  - name: source
+  - name: analysis
+paths:
+  /source:
+    post:
+      tags:
+        - source
+      summary: Add a new source to database
+      operationId: api.v1.source.post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Source'
+      responses:
+        '201':
+          description: database object response
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /source/upload:
+    post:
+      tags: 
+        - source
+      summary: upload a local file
+      operationId: api.v1.source.post_file
+      requestBody:
+        required: true
+        description: file name to be uploaded
+        content:
+          application/json:
+            schema:
+              required:
+                - file_name
+              properties:
+                file_name:
+                  type: string
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: bad request
+  /source/{source_id}:
+    put:
+      tags:
+        - source
+      summary: Update an existing source
+      operationId: api.v1.source.put
+      parameters:
+        - in: path
+          name: source_id
+          description: uuid of source in DB
+          required: true
+          schema:
+            type: string
+            example: -LSYllCRJlb5khENzxMZ
+      requestBody:
+        description: necessary information to find the source
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                  example: -LSYllCRJlb5khENzxMZ
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Source not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags: 
+        - source
+      summary: delete an existing source
+      operationId: api.v1.source.delete
+      parameters:
+        - in: path
+          name: source_id
+          description: uuid of source in DB
+          required: true
+          schema:
+            type: string
+            example: -LSYllCRJlb5khENzxMZ
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Source not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /source/{source_id}/analysis:
+    post:
+      tags: 
+        - analysis
+      summary: create a new analysis from source_id
+      operationId: api.v1.analysis.post
+      parameters: 
+        - in: path
+          name: source_id
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "urng9475ytngje84y5"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Analysis'
+      responses:
+        '201':
+          description: created
+          content:
+            application/json: 
+              schema:
+                type: string
+                description: id of new analysis
+        '404':
+          description: Source not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Analysis:
+      type: object
+      required: 
+        - language_code
+        - encoding
+        - sample_rate_hertz
+      properties:
+        language_code:
+          type: string
+          example: fr
+        encoding:
+          type: string
+          example: UTF-8
+        sample_rate_hertz:
+          type: integer
+          example: 2
+    Error:
+      type: object
+      properties:
+        code:
+          type: number
+          example: 400
+        message:
+          type: string
+          example: Bad input
+    Source:
+      type: object
+      required: 
+        - url
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: -LSYllCRJlb5khENzxMZ
+        download:
+          type: string
+          format: URI
+          example: "gs://output-downloader/youtube/E8wbRCDgSB0.mp3"
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+        url:
+          type: string
+          format: url
+          example: http://youtube.com/bonjourlesamis
+        status:
+          type: string
+          enum: [waiting, downloading, error, downloaded]
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/Steps'
+        submitted_on:
+          type: integer
+          example: 1543567249
+        username:
+          type: string
+          example: Bilygine
+        version:
+          type: number
+          format: float
+          example: 0.1
+    Metadata:
+      type: object
+      properties:
+        abr:
+          type: integer
+          example: 160
+        acodec:
+          type: string
+          example: "opus"
+        age_limit:
+          type: integer
+          example: 0
+        categories:
+          type: array
+          items: 
+            type: string
+        channel_id:
+          type: string
+          example: UC4Euikzr0bLKsnNuIKW6Sfg
+        channel_url:
+          type: string
+          format: URL
+          example: https://www.youtube.com/user/ScienceEtonnante
+        description:
+          type: string
+          example: Des vidéos pour raconter la science étonnante, amusante, passionnante et stupéfiante !
+        display_id:
+          type: string
+          example: E8wbRCDgSB0
+        downloader_options:
+          type: object
+          properties: 
+            http_chunk_size:
+              type: integer
+              example: 10485760
+        duration:
+          type: integer
+          example: 10817
+        ext:
+          type: string
+          example: webm
+        extractor:
+          type: string
+          example: youtube
+        extractor_key:
+          type: string
+          example: Youtube
+        filesize:
+          type: integer
+          example: 153113189
+        format:
+          type: string
+          example: 251 - audio only (DASH audio)
+        format_id:
+          type: integer
+          example: 251
+        format_note:
+          type: string
+          example: DASH audio
+        id:
+          type: string
+          example: E8wbRCDgSB0
+        player_url:
+          type: string
+          example: /yts/jsbin/player_ias-vflAhGWM_/en_US/base.js
+        protocol:
+          type: string
+          example: https
+        quality:
+          type: integer
+          example: -1
+        tags:
+          type: array
+          items:
+            type: string
+        tbr:
+          type: number
+          format: float
+          example: 144.253
+        thumbnail:
+          type: string
+          format: URL
+          example: https://yt3.ggpht.com/a-/AAuE7mDxk4GmYkSYLxEdNgPBOPHGJm1-t1hIaIZXgg=s288-mo-c-c0xffffffff-rj-k-no
+        thumbnails:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                example: 0
+              url:
+                type: string
+                format: url
+                example: https://i.ytimg.com/vi/E8wbRCDgSB0/maxresdefaul...
+        title:
+          type: string
+          example: "Intégrale - On n'est pas couché 24 novembre 2018"
+        upload_date:
+          type: string
+          example: 20181125
+        uploader:
+          type: string
+          example: On n'est pas couche
+        uploader_id:
+          type: string
+          example: onpcofficoelle
+        uploader_url:
+          type: string
+          format: url
+          example: http://www.youtube.com/user/onpcofficielle
+        url:
+          type: string
+          format: url
+          example: https://r1---sn-5hnekn7k.googlevideo.com/videop...
+        vcodec:
+          type: string
+          example: none
+        webpage_url:
+          type: string
+          format: url
+          example: https://www.youtube.com/watch?v=E8wbRCDgSB0
+        webpage_url_basename:
+          type: string
+          example: watch
+    Steps:
+      type: object
+      properties:
+        status:
+          type: string
+          example: waiting
+        timestamp:
+          type: integer
+          example: 1543567249

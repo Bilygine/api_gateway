@@ -1,0 +1,6 @@
+requests
+connexion[swagger-ui]
+flask
+coloredlogs
+flask-cors
+google-cloud-storage
